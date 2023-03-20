@@ -1,0 +1,25 @@
+{
+	"name": "brickli",
+	"version": "1.0.7",
+	"description": "常用前端工程化模板",
+	"main": "index.js",
+	"bin": {
+		"brickli": "index.js"
+	},
+	"scripts": {
+		"start": "node index.js",
+		"publish": "npm publish --access public",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "cynric",
+	"repository": "https://github.com/cynricchiu/brickli",
+	"keywords": [
+		"node cli"
+	],
+	"license": "MIT",
+	"dependencies": {
+		"chalk": "4.0.0",
+		"commander": "^10.0.0",
+		"prompts": "^2.4.2"
+	}
+}

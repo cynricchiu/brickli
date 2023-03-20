@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" type="image/svg+xml" href="./src/public/favicon.svg" />
+		<link rel="stylesheet" href="" />
+		<title>Brickli App</title>
+		<style type="text/css">
+			:root {
+				--background-color: #333333;
+				--font-color: #333333;
+				--font-family: 'Quattrocento Sans', 'sans-serif';
+				--front-color: #ff4500;
+			}
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			html {
+				width: 100vw;
+				height: 100vh;
+			}
+			body {
+				width: 100%;
+				font-family: var(--font-family);
+			}
+			.header {
+				width: 100%;
+				height: 100px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				color: var(--font-color);
+				font-size: 40px;
+				line-height: 100px;
+			}
+			.label {
+				margin-left: 10px;
+			}
+			.content {
+				width: 100%;
+				display: grid;
+				grid-template-rows: repeat(auto-fill, 40px);
+				grid-template-columns: repeat(4, auto);
+				justify-content: space-around;
+			}
+			a {
+				height: 40px;
+				color: var(--font-color);
+				line-height: 40px;
+				text-decoration: none;
+			}
+			a:hover {
+				color: var(--front-color);
+				transform: scale(1.1);
+				transition: ease-in 100ms;
+			}
+			a:visited {
+				color: var(--front-color);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="header">
+			<object data="./src/public/favicon.svg" width="48" height="48"></object>
+			<label class="label">Brickli</label>
+		</div>
+		<div class="content"></div>
+		<script type="text/javascript">
+			const fragEle = document.createDocumentFragment();
+			const { demoList } = JSON.parse(`<%- params %>`);
+			demoList.forEach(name => {
+				const a = document.createElement('a');
+				a.href = `/demos/${name}.html`;
+				a.target = `_blank`;
+				a.innerHTML = `${name}`;
+				fragEle.appendChild(a);
+			});
+			document.querySelector('.content').appendChild(fragEle);
+		</script>
+	</body>
+</html>
