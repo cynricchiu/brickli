@@ -1,4 +1,5 @@
 # 保留模板完整目录
-*.gitkeep
+**/.gitkeep
+!*.gitkeep
 /node_modules
 /package-lock.json
