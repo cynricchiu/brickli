@@ -6,13 +6,16 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/svg+xml" href="./src/public/favicon.svg" />
 		<link rel="stylesheet" href="" />
-		<title>Brickli App</title>
+		<title><%- title %></title>
 		<style type="text/css">
 			:root {
-				--background-color: #333333;
+				--background-color: rgba(255, 69, 0, 0.1);
+				--font-size-big: 18px;
+				--font-size-mid: 16px;
+				--font-size-small: 15px;
 				--font-color: #333333;
-				--font-family: 'Quattrocento Sans', 'sans-serif';
-				--front-color: #ff4500;
+				--font-family: 'Open Sans', 'Helvetica Neue', 'Helvetica, Arial, sans-serif';
+				--front-color: rgba(255, 69, 0);
 			}
 			* {
 				margin: 0;
@@ -28,56 +31,124 @@
 			}
 			.header {
 				width: 100%;
-				height: 100px;
+				height: 200px;
+				line-height: 100px;
 				display: flex;
 				justify-content: center;
 				align-items: center;
 				color: var(--font-color);
 				font-size: 40px;
-				line-height: 100px;
 			}
-			.label {
+			.header .label {
 				margin-left: 10px;
 			}
 			.content {
 				width: 100%;
-				display: grid;
-				grid-template-rows: repeat(auto-fill, 40px);
-				grid-template-columns: repeat(4, auto);
-				justify-content: space-around;
+				column-gap: 20px;
+				column-count: 4;
+				column-fill: balance;
+				padding: 20px;
+				break-inside: avoid;
+				-webkit-column-break-inside: avoid;
+				padding-left: 8%;
+			}
+			.card {
+				padding-left: 0px;
+				margin: 0 0 50px 0;
+			}
+			.card > figcaption {
+				font-size: var(--font-size-big);
+				margin: 0 0 20px 0;
+				padding-left: 0;
+			}
+			.card > figure {
+				padding-left: 0;
+			}
+			figure {
+				padding-left: 20px;
+				overflow: hidden;
+				border-radius: 4px;
+			}
+			figcaption {
+				height: 20px;
+				line-height: 20px;
+				font-size: var(--font-size-mid);
+				color: var(--front-color);
+				margin-top: 5px;
 			}
 			a {
-				height: 40px;
+				height: 25px;
+				line-height: 25px;
+				display: block;
 				color: var(--font-color);
-				line-height: 40px;
-				text-decoration: none;
+				font-size: var(--font-size-small);
+				margin: 5px 0;
 			}
 			a:hover {
 				color: var(--front-color);
-				transform: scale(1.1);
+				margin-left: 10px;
 				transition: ease-in 100ms;
-			}
-			a:visited {
-				color: var(--front-color);
 			}
 		</style>
 	</head>
 	<body>
 		<div class="header">
 			<object data="./src/public/favicon.svg" width="48" height="48"></object>
-			<label class="label">Brickli</label>
+			<label class="label"><%- title %></label>
 		</div>
 		<div class="content"></div>
 		<script type="text/javascript">
-			const fragEle = document.createDocumentFragment();
 			const { demoList } = JSON.parse(`<%- params %>`);
-			demoList.forEach(name => {
+			// 根目录下文件夹以卡片展示，html文件以列表展示
+			const rdirList = [],
+				rfileList = [];
+			demoList[0].children.forEach(rnode => {
+				if (rnode.children.length) {
+					rdirList.push(rnode);
+				} else {
+					rfileList.push(rnode);
+				}
+			});
+			console.log(demoList);
+			// 卡片
+			function buildFromTree(tree, element) {
+				tree.forEach(node => {
+					const { name, path, children } = node;
+					if (children.length) {
+						const figure = document.createElement('figure');
+						figure.innerHTML = `<figcaption>${node.name}</figcaption>`;
+						element.appendChild(figure);
+						buildFromTree(node.children, figure);
+					} else {
+						const a = document.createElement('a');
+						a.href = path;
+						a.target = `_blank`;
+						a.innerHTML = `${name}`;
+						element.insertBefore(a, element.children[1]);
+					}
+				});
+			}
+			const fragEle = document.createDocumentFragment();
+			rdirList.forEach(node => {
+				const figure = document.createElement('figure');
+				figure.classList.add('card');
+				figure.innerHTML = ` <figcaption>${node.name}</figcaption>`;
+				buildFromTree(node.children, figure);
+				fragEle.appendChild(figure);
+			});
+			// 列表
+			const figure = document.createElement('figure');
+			figure.classList.add('card');
+			figure.innerHTML = `<figcaption>${rdirList.length ? 'Others' : 'Demos'}</figcaption>`;
+			rfileList.forEach(node => {
+				const { name, path } = node;
 				const a = document.createElement('a');
-				a.href = `/demos/${name}.html`;
+				a.href = path;
 				a.target = `_blank`;
 				a.innerHTML = `${name}`;
-				fragEle.appendChild(a);
+				figure.appendChild(a);
 			});
+			fragEle.appendChild(figure);
 			document.querySelector('.content').appendChild(fragEle);
 		</script>
 	</body>

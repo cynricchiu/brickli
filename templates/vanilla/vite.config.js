@@ -1,23 +1,9 @@
 import { defineConfig } from 'vite';
 import { ViteEjsPlugin } from 'vite-plugin-ejs';
+import packageJson from './package.json';
 import path from 'path';
 import fs from 'fs';
 
-const demoDir = path.resolve(__dirname, './demos');
-const getFileList = dirPath => {
-	const stat = fs.statSync(dirPath);
-	const nameList = [];
-	if (stat.isDirectory()) {
-		const files = fs.readdirSync(dirPath);
-		files.forEach(file => {
-			if (path.extname(file).toLocaleLowerCase() === '.html') {
-				const fileName = path.basename(file, '.html');
-				nameList.push(fileName);
-			}
-		});
-	}
-	return nameList;
-};
 export default defineConfig(({ command, mode, ssrBuild }) => {
 	const common = {
 		publicDir: 'public',
@@ -31,9 +17,10 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 		},
 		plugins: [
 			ViteEjsPlugin({
+				title: packageJson.name,
 				params: JSON.stringify({
-					demoList: getFileList(demoDir),
-				}),
+					demoList: getHtmlTree('./demos'),
+				}).replaceAll('\\', '\\\\'), // 转成字符串才能传递给ejs，且路径中的\\替换成\\\\才能正确JSON.parse
 			}),
 		],
 	};
@@ -108,3 +95,47 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 		}
 	}
 });
+
+// 仅将目录下有.html的识别为node
+const isNodeDir = dirPath => {
+	dirPath = path.resolve(__dirname, dirPath);
+	if (fs.statSync(dirPath).isDirectory()) {
+		const files = fs.readdirSync(dirPath);
+		return !!files.find(file => {
+			return path.extname(file).toLocaleLowerCase() === '.html';
+		});
+	}
+	return false;
+};
+
+// 将demos目录结构组织为树形JSON
+const getHtmlTree = (dirPath, tree = []) => {
+	if (isNodeDir(dirPath)) {
+		const dirName = path.basename(dirPath);
+		const parentNode = {
+			name: format(dirName),
+			path: dirPath,
+			children: [],
+		};
+		tree.push(parentNode);
+		const files = fs.readdirSync(parentNode.path);
+		files.forEach(file => {
+			const childNode = {
+				name: format(file),
+				path: path.join(parentNode.path, file),
+				children: [],
+			};
+			if (path.extname(file).toLocaleLowerCase() === '.html') {
+				parentNode.children.push(childNode);
+			} else if (isNodeDir(childNode.path)) {
+				getHtmlTree(childNode.path, parentNode.children);
+			}
+		});
+	}
+	return tree;
+};
+
+// 首字母大写
+const format = str => {
+	return str.toLowerCase().replace(/( |^)[a-z]/g, letter => letter.toUpperCase());
+};
