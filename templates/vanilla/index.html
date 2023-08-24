@@ -39,18 +39,10 @@
 				color: var(--font-color);
 				font-size: 40px;
 			}
-<<<<<<< HEAD
-			.header .label {
-				margin-left: 10px;
-			}
-			.content {
-				width: 100%;
-=======
 			header > .label {
 				margin-left: 10px;
 			}
 			.content {
->>>>>>> feat
 				column-gap: 20px;
 				column-count: 4;
 				column-fill: balance;
@@ -59,31 +51,6 @@
 				-webkit-column-break-inside: avoid;
 				padding-left: 8%;
 			}
-<<<<<<< HEAD
-			.card {
-				padding-left: 0px;
-				margin: 0 0 50px 0;
-			}
-			.card > figcaption {
-				font-size: var(--font-size-big);
-				margin: 0 0 20px 0;
-				padding-left: 0;
-			}
-			.card > figure {
-				padding-left: 0;
-			}
-			figure {
-				padding-left: 20px;
-				overflow: hidden;
-				border-radius: 4px;
-			}
-			figcaption {
-				height: 20px;
-				line-height: 20px;
-				font-size: var(--font-size-mid);
-				color: var(--front-color);
-				margin-top: 5px;
-=======
 			main > .card {
 				margin: 0 0 50px 0;
 				overflow: hidden;
@@ -108,7 +75,6 @@
 			}
 			main > .card > figcaption::before {
 				content: none;
->>>>>>> feat
 			}
 			a {
 				height: 25px;
@@ -117,20 +83,14 @@
 				color: var(--font-color);
 				font-size: var(--font-size-small);
 				margin: 5px 0;
-<<<<<<< HEAD
-=======
 				padding-left: 14px;
->>>>>>> feat
 			}
 			a:hover {
 				transition: ease-in 100ms;
 				text-decoration-color: var(--front-color);
-<<<<<<< HEAD
-=======
 			}
 			main > .card > a {
 				padding-left: 0;
->>>>>>> feat
 			}
 		</style>
 	</head>
@@ -138,67 +98,11 @@
 		<header>
 			<object data="./src/public/favicon.svg" width="48" height="48"></object>
 			<label class="label"><%- title %></label>
-<<<<<<< HEAD
-		</div>
-		<div class="content"></div>
-=======
 		</header>
 		<main class="content"></main>
->>>>>>> feat
 		<script type="text/javascript">
-			const { demoList } = JSON.parse(`<%- params %>`);
-<<<<<<< HEAD
-			// 根目录下文件夹以卡片展示，html文件以列表展示
-			const rdirList = [],
-				rfileList = [];
-			demoList[0].children.forEach(rnode => {
-				if (rnode.children.length) {
-					rdirList.push(rnode);
-				} else {
-					rfileList.push(rnode);
-				}
-			});
-			// 卡片
-			function buildFromTree(tree, element) {
-				tree.forEach(node => {
-					const { name, path, children } = node;
-					if (children.length) {
-						const figure = document.createElement('figure');
-						figure.innerHTML = `<figcaption>${node.name}</figcaption>`;
-						element.appendChild(figure);
-						buildFromTree(node.children, figure);
-					} else {
-						const a = document.createElement('a');
-						a.href = path;
-						a.target = `_blank`;
-						a.innerHTML = `${name.substring(0, name.indexOf('.'))}`;
-						element.insertBefore(a, element.children[1]);
-					}
-				});
-			}
 			const fragEle = document.createDocumentFragment();
-			rdirList.forEach(node => {
-				const figure = document.createElement('figure');
-				figure.classList.add('card');
-				figure.innerHTML = ` <figcaption>${node.name}</figcaption>`;
-				buildFromTree(node.children, figure);
-				fragEle.appendChild(figure);
-			});
-			// 列表
-			const figure = document.createElement('figure');
-			figure.classList.add('card');
-			figure.innerHTML = `<figcaption>${rdirList.length ? 'Others' : 'Demos'}</figcaption>`;
-			rfileList.forEach(node => {
-				const { name, path } = node;
-				const a = document.createElement('a');
-				a.href = path;
-				a.target = `_blank`;
-				a.innerHTML = `${name.substring(0, name.indexOf('.'))}`;
-				figure.appendChild(a);
-			});
-			fragEle.appendChild(figure);
-			document.querySelector('.content').appendChild(fragEle);
-=======
+			const { demoList } = JSON.parse(`<%- params %>`);
 			// 创建节点卡片组件
 			function createCard(node, root) {
 				const { path, name, index, children } = node;
@@ -242,7 +146,6 @@
 				createCard(n, cardsEle);
 			});
 			document.querySelector('.content').appendChild(cardsEle);
->>>>>>> feat
 		</script>
 	</body>
 </html>

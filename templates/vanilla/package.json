@@ -1,5 +1,5 @@
 {
-	"name": "vanilla",
+	"name": "emage",
 	"version": "1.0.0",
 	"main": "src/assets/js/main.js",
 	"license": "MIT",
@@ -12,7 +12,13 @@
 	},
 	"devDependencies": {
 		"vite": "^4.1.4",
-		"vite-plugin-ejs": "^1.6.4",
-		"dat.gui": "^0.7.9"
-	}
+		"vite-plugin-ejs": "^1.6.4"
+	},
+	"description": "",
+	"repository": "",
+	"keywords": [
+		""
+	],
+	"author": "cynric",
+	"licence": "MIT"
 }

@@ -17,11 +17,7 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 		},
 		plugins: [
 			ViteEjsPlugin({
-<<<<<<< HEAD
-				title: packageJson.name,
-=======
 				title: format(packageJson.name),
->>>>>>> feat
 				params: JSON.stringify({
 					demoList: getHtmlTree('./demos'),
 				}).replaceAll('\\', '\\\\'), // 转成字符串才能传递给ejs，且路径中的\\替换成\\\\才能正确JSON.parse
@@ -123,33 +119,6 @@ const isNodeDir = dirPath => {
 	return false;
 };
 
-<<<<<<< HEAD
-// 将demos目录结构组织为树形JSON
-const getHtmlTree = (dirPath, tree = []) => {
-	if (isNodeDir(dirPath)) {
-		const dirName = path.basename(dirPath);
-		const parentNode = {
-			name: format(dirName),
-			path: dirPath,
-			children: [],
-		};
-		tree.push(parentNode);
-		const files = fs.readdirSync(parentNode.path);
-		files.forEach(file => {
-			const childNode = {
-				name: format(file),
-				path: path.join(parentNode.path, file),
-				children: [],
-			};
-			if (path.extname(file).toLocaleLowerCase() === '.html') {
-				parentNode.children.push(childNode);
-			} else if (isNodeDir(childNode.path)) {
-				getHtmlTree(childNode.path, parentNode.children);
-			}
-		});
-	}
-	return tree;
-=======
 // 根据根节点构造目录树
 const buildTree = root => {
 	if (isNodeDir(root.path)) {
@@ -183,7 +152,6 @@ const getHtmlTree = dirPath => {
 		return root;
 	}
 	return null;
->>>>>>> feat
 };
 
 // 首字母大写
