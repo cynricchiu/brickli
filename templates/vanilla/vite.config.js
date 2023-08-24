@@ -17,12 +17,27 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 		},
 		plugins: [
 			ViteEjsPlugin({
+<<<<<<< HEAD
 				title: packageJson.name,
+=======
+				title: format(packageJson.name),
+>>>>>>> feat
 				params: JSON.stringify({
 					demoList: getHtmlTree('./demos'),
 				}).replaceAll('\\', '\\\\'), // 转成字符串才能传递给ejs，且路径中的\\替换成\\\\才能正确JSON.parse
 			}),
 		],
+		devServer: {
+			host: 'localhost',
+			port: '8080',
+			proxy: {
+				'': {
+					// /api 表示拦截以/api开头的请求路径
+					target: 'http://music.163.com', // 跨域的域名
+					changeOrigin: true, // 是否开启跨域
+				},
+			},
+		},
 	};
 	if (command === 'serve') {
 		// dev
@@ -108,6 +123,7 @@ const isNodeDir = dirPath => {
 	return false;
 };
 
+<<<<<<< HEAD
 // 将demos目录结构组织为树形JSON
 const getHtmlTree = (dirPath, tree = []) => {
 	if (isNodeDir(dirPath)) {
@@ -133,6 +149,41 @@ const getHtmlTree = (dirPath, tree = []) => {
 		});
 	}
 	return tree;
+=======
+// 根据根节点构造目录树
+const buildTree = root => {
+	if (isNodeDir(root.path)) {
+		const files = fs.readdirSync(root.path);
+		files.forEach((file, i) => {
+			const child = {
+				name: format(file),
+				path: path.join(root.path, file),
+				children: [],
+				index: `${root.index}-${i}`,
+			};
+			if (path.extname(file).toLocaleLowerCase() === '.html' || isNodeDir(child.path)) {
+				root.children.push(child);
+			}
+			buildTree(child);
+		});
+	}
+};
+
+// 将demos目录结构组织为树形JSON
+const getHtmlTree = dirPath => {
+	if (isNodeDir(dirPath)) {
+		const dirName = path.basename(dirPath);
+		const root = {
+			name: format(dirName), // 文件名遵循首字母大写规则
+			path: dirPath,
+			children: [],
+			index: 0,
+		};
+		buildTree(root);
+		return root;
+	}
+	return null;
+>>>>>>> feat
 };
 
 // 首字母大写

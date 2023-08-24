@@ -29,7 +29,7 @@
 				width: 100%;
 				font-family: var(--font-family);
 			}
-			.header {
+			header {
 				width: 100%;
 				height: 200px;
 				line-height: 100px;
@@ -39,11 +39,18 @@
 				color: var(--font-color);
 				font-size: 40px;
 			}
+<<<<<<< HEAD
 			.header .label {
 				margin-left: 10px;
 			}
 			.content {
 				width: 100%;
+=======
+			header > .label {
+				margin-left: 10px;
+			}
+			.content {
+>>>>>>> feat
 				column-gap: 20px;
 				column-count: 4;
 				column-fill: balance;
@@ -52,6 +59,7 @@
 				-webkit-column-break-inside: avoid;
 				padding-left: 8%;
 			}
+<<<<<<< HEAD
 			.card {
 				padding-left: 0px;
 				margin: 0 0 50px 0;
@@ -75,6 +83,32 @@
 				font-size: var(--font-size-mid);
 				color: var(--front-color);
 				margin-top: 5px;
+=======
+			main > .card {
+				margin: 0 0 50px 0;
+				overflow: hidden;
+			}
+			figcaption {
+				height: 25px;
+				line-height: 25px;
+				font-size: var(--font-size-small);
+				color: var(--front-color);
+			}
+			figcaption::before {
+				content: '\2022';
+				display: inline-block;
+				width: 14px;
+				font-family: 'entypo', sans-serif;
+			}
+			main > .card > figcaption {
+				font-size: var(--font-size-big);
+				margin-bottom: 20px;
+				padding-left: 0;
+				list-style: none;
+			}
+			main > .card > figcaption::before {
+				content: none;
+>>>>>>> feat
 			}
 			a {
 				height: 25px;
@@ -83,21 +117,37 @@
 				color: var(--font-color);
 				font-size: var(--font-size-small);
 				margin: 5px 0;
+<<<<<<< HEAD
+=======
+				padding-left: 14px;
+>>>>>>> feat
 			}
 			a:hover {
 				transition: ease-in 100ms;
 				text-decoration-color: var(--front-color);
+<<<<<<< HEAD
+=======
+			}
+			main > .card > a {
+				padding-left: 0;
+>>>>>>> feat
 			}
 		</style>
 	</head>
 	<body>
-		<div class="header">
+		<header>
 			<object data="./src/public/favicon.svg" width="48" height="48"></object>
 			<label class="label"><%- title %></label>
+<<<<<<< HEAD
 		</div>
 		<div class="content"></div>
+=======
+		</header>
+		<main class="content"></main>
+>>>>>>> feat
 		<script type="text/javascript">
 			const { demoList } = JSON.parse(`<%- params %>`);
+<<<<<<< HEAD
 			// 根目录下文件夹以卡片展示，html文件以列表展示
 			const rdirList = [],
 				rfileList = [];
@@ -148,6 +198,51 @@
 			});
 			fragEle.appendChild(figure);
 			document.querySelector('.content').appendChild(fragEle);
+=======
+			// 创建节点卡片组件
+			function createCard(node, root) {
+				const { path, name, index, children } = node;
+				if (children.length) {
+					// dir node
+					const figEle = document.createElement('figure');
+					figEle.className = 'card';
+					figEle.setAttribute('key', index);
+					figEle.innerHTML = `<figcaption>${name}</figcaption>`;
+					root.appendChild(figEle);
+					children.forEach(child => {
+						createCard(child, figEle);
+					});
+				} else {
+					// file node
+					const aEle = document.createElement('a');
+					aEle.setAttribute('key', index);
+					aEle.setAttribute('href', path);
+					aEle.setAttribute('target', '_blank');
+					aEle.innerHTML = `${name.substring(0, name.indexOf('.'))}`;
+					root.appendChild(aEle);
+				}
+				return root;
+			}
+			// 根据目录树展示所有卡片
+			const cardsEle = document.createDocumentFragment();
+			const mainNode = {
+				name: 'Main',
+				children: [],
+			};
+			const nodes = []; // demos根目录下所有文件归为Main节点
+			demoList.children.forEach(n => {
+				if (n.children.length) {
+					nodes.push(n);
+				} else {
+					mainNode.children.push(n);
+				}
+			});
+			nodes.push(mainNode);
+			nodes.forEach(n => {
+				createCard(n, cardsEle);
+			});
+			document.querySelector('.content').appendChild(cardsEle);
+>>>>>>> feat
 		</script>
 	</body>
 </html>
