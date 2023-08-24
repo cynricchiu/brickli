@@ -1,6 +1,6 @@
 {
 	"name": "brickli",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"description": "常用前端工程化模板",
 	"main": "index.js",
 	"bin": {
