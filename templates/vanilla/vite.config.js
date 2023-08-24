@@ -1,23 +1,9 @@
 import { defineConfig } from 'vite';
 import { ViteEjsPlugin } from 'vite-plugin-ejs';
+import packageJson from './package.json';
 import path from 'path';
 import fs from 'fs';
 
-const demoDir = path.resolve(__dirname, './demos');
-const getFileList = dirPath => {
-	const stat = fs.statSync(dirPath);
-	const nameList = [];
-	if (stat.isDirectory()) {
-		const files = fs.readdirSync(dirPath);
-		files.forEach(file => {
-			if (path.extname(file).toLocaleLowerCase() === '.html') {
-				const fileName = path.basename(file, '.html');
-				nameList.push(fileName);
-			}
-		});
-	}
-	return nameList;
-};
 export default defineConfig(({ command, mode, ssrBuild }) => {
 	const common = {
 		publicDir: 'public',
@@ -31,11 +17,23 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 		},
 		plugins: [
 			ViteEjsPlugin({
+				title: format(packageJson.name),
 				params: JSON.stringify({
-					demoList: getFileList(demoDir),
-				}),
+					demoList: getHtmlTree('./demos'),
+				}).replaceAll('\\', '\\\\'), // 转成字符串才能传递给ejs，且路径中的\\替换成\\\\才能正确JSON.parse
 			}),
 		],
+		devServer: {
+			host: 'localhost',
+			port: '8080',
+			proxy: {
+				'': {
+					// /api 表示拦截以/api开头的请求路径
+					target: 'http://music.163.com', // 跨域的域名
+					changeOrigin: true, // 是否开启跨域
+				},
+			},
+		},
 	};
 	if (command === 'serve') {
 		// dev
@@ -108,3 +106,55 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 		}
 	}
 });
+
+// 仅将目录下有.html的识别为node
+const isNodeDir = dirPath => {
+	dirPath = path.resolve(__dirname, dirPath);
+	if (fs.statSync(dirPath).isDirectory()) {
+		const files = fs.readdirSync(dirPath);
+		return !!files.find(file => {
+			return path.extname(file).toLocaleLowerCase() === '.html';
+		});
+	}
+	return false;
+};
+
+// 根据根节点构造目录树
+const buildTree = root => {
+	if (isNodeDir(root.path)) {
+		const files = fs.readdirSync(root.path);
+		files.forEach((file, i) => {
+			const child = {
+				name: format(file),
+				path: path.join(root.path, file),
+				children: [],
+				index: `${root.index}-${i}`,
+			};
+			if (path.extname(file).toLocaleLowerCase() === '.html' || isNodeDir(child.path)) {
+				root.children.push(child);
+			}
+			buildTree(child);
+		});
+	}
+};
+
+// 将demos目录结构组织为树形JSON
+const getHtmlTree = dirPath => {
+	if (isNodeDir(dirPath)) {
+		const dirName = path.basename(dirPath);
+		const root = {
+			name: format(dirName), // 文件名遵循首字母大写规则
+			path: dirPath,
+			children: [],
+			index: 0,
+		};
+		buildTree(root);
+		return root;
+	}
+	return null;
+};
+
+// 首字母大写
+const format = str => {
+	return str.toLowerCase().replace(/( |^)[a-z]/g, letter => letter.toUpperCase());
+};
