@@ -110,13 +110,7 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 // 仅将目录下有.html的识别为node
 const isNodeDir = dirPath => {
 	dirPath = path.resolve(__dirname, dirPath);
-	if (fs.statSync(dirPath).isDirectory()) {
-		const files = fs.readdirSync(dirPath);
-		return !!files.find(file => {
-			return path.extname(file).toLocaleLowerCase() === '.html';
-		});
-	}
-	return false;
+	return fs.statSync(dirPath).isDirectory();
 };
 
 // 根据根节点构造目录树
