@@ -29,7 +29,7 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 			proxy: {
 				'': {
 					// /api 表示拦截以/api开头的请求路径
-					target: 'http://music.163.com', // 跨域的域名
+					// target: 'http://music.163.com', // 跨域的域名
 					changeOrigin: true, // 是否开启跨域
 				},
 			},
@@ -50,7 +50,6 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 				rollupOptions: {
 					input: {
 						index: path.resolve(__dirname, 'index.html'),
-						demo: path.resolve(__dirname, 'demo/createMap.html'),
 					},
 				},
 			},
@@ -65,9 +64,9 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 					target: 'modules',
 					outDir: 'dist', //指定输出路径
 					assetsDir: 'assets', // 指定生成静态资源的存放路径
-					minify: 'terser', // terser需要另行安装
+					minify: 'esbuild',
 					rollupOptions: {
-						input: path.resolve(__dirname, './src/main.js'), // 打包入口文件
+						input: path.resolve(__dirname, './src/assets/js/main.js'), // 打包入口文件
 						output: {
 							// 最小化拆分包
 							manualChunks: id => {
@@ -79,15 +78,16 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 							chunkFileNames: 'js/[name].[hash].js',
 							assetFileNames: '[ext]/[name].[hash].[ext]',
 							globals: {
-								react: 'React',
+								// react: 'React', // UMD构建模式下为依赖提供一个全局变量
 							},
 						},
-						external: ['react'], // 不需要打包的文件
+						// external: ['react'], // 不打包依赖
 					},
 				},
 			};
 		} else {
 			// build环境，但是lib模式
+			const libName = `${packageJson.name}-lib`;
 			return {
 				...common,
 				// 打包配置
@@ -95,11 +95,11 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 					target: 'modules',
 					outDir: 'dist', //指定输出路径
 					assetsDir: 'assets', // 指定生成静态资源的存放路径
-					minify: 'terser', // terser需要另行安装
+					minify: 'esbuild',
 					lib: {
-						entry: path.resolve(__dirname, './src/main.js'),
-						name: 'mylib',
-						fileName: format => `mylib.${format}.js`,
+						entry: path.resolve(__dirname, './src/assets/js/main.js'),
+						name: libName,
+						fileName: format => `${libName}.${format}.js`,
 					},
 				},
 			};
