@@ -1,55 +1,60 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import { ViteEjsPlugin } from 'vite-plugin-ejs';
 import packageJson from './package.json';
 import path from 'path';
 import fs from 'fs';
 
 export default defineConfig(({ command, mode, ssrBuild }) => {
+	const ENV = loadEnv(mode, process.cwd(), ''); // 获取环境变量
 	const common = {
 		publicDir: 'public',
 		resolve: {
 			alias: {
+				'@src': path.resolve(__dirname, './src'),
 				'@styles': path.resolve(__dirname, './src/assets/styles'),
 				'@images': path.resolve(__dirname, './src/assets/images'),
 				'@data': path.resolve(__dirname, './src/assets/data'),
-				'@js': path.resolve(__dirname, './src/assets/js'),
+				'@libs': path.resolve(__dirname, './src/assets/libs'),
 			},
 		},
 		plugins: [
 			ViteEjsPlugin({
 				title: format(packageJson.name),
 				params: JSON.stringify({
-					demoList: getHtmlTree('./demos'),
+					demoList: getHtmlTree('./pages/demos'),
 				}).replaceAll('\\', '\\\\'), // 转成字符串才能传递给ejs，且路径中的\\替换成\\\\才能正确JSON.parse
 			}),
 		],
-		devServer: {
-			host: 'localhost',
-			port: '8080',
-			proxy: {
-				'': {
-					// /api 表示拦截以/api开头的请求路径
-					// target: 'http://music.163.com', // 跨域的域名
-					changeOrigin: true, // 是否开启跨域
-				},
-			},
-		},
 	};
 	if (command === 'serve') {
 		// dev
 		return {
 			...common,
 			server: {
-				host: 'localhost',
-				port: '8080',
-				open: true,
+				host: ENV.VITE_HOST || 'localhst',
+				port: ENV.VITE_PORT || '8080',
+				hmr: true,
+				open: '/home',
 				https: false,
 				cors: true,
+				proxy: {
+					// 地址代理，设置http://localhost:8080/home为主页面
+					'/home': {
+						target: `http://${ENV.VITE_HOST || 'localhst'}:${ENV.VITE_PORT || '8080'}`,
+						changeOrigin: true,
+						rewrite: path => path.replace(/^\/home/, 'pages/index/index.html'),
+					},
+					'/demos': {
+						target: `http://${ENV.VITE_HOST || 'localhst'}:${ENV.VITE_PORT || '8080'}`,
+						changeOrigin: true,
+						rewrite: path => path.replace(/^\/demos/, 'pages/demos'),
+					},
+				},
 			},
 			build: {
 				rollupOptions: {
 					input: {
-						index: path.resolve(__dirname, 'index.html'),
+						index: path.resolve(__dirname, 'pages/index/index.html'),
 					},
 				},
 			},
@@ -66,7 +71,7 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 					assetsDir: 'assets', // 指定生成静态资源的存放路径
 					minify: 'esbuild',
 					rollupOptions: {
-						input: path.resolve(__dirname, './src/assets/js/main.js'), // 打包入口文件
+						input: path.resolve(__dirname, './src/main.js'), // 打包入口文件
 						output: {
 							// 最小化拆分包
 							manualChunks: id => {
@@ -97,7 +102,7 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 					assetsDir: 'assets', // 指定生成静态资源的存放路径
 					minify: 'esbuild',
 					lib: {
-						entry: path.resolve(__dirname, './src/assets/js/main.js'),
+						entry: path.resolve(__dirname, './src/main.js'),
 						name: libName,
 						fileName: format => `${libName}.${format}.js`,
 					},
@@ -110,7 +115,13 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 // 仅将目录下有.html的识别为node
 const isNodeDir = dirPath => {
 	dirPath = path.resolve(__dirname, dirPath);
-	return fs.statSync(dirPath).isDirectory();
+	if (fs.statSync(dirPath).isDirectory()) {
+		const files = fs.readdirSync(dirPath);
+		return !!files.find(file => {
+			return path.extname(file).toLocaleLowerCase() === '.html';
+		});
+	}
+	return false;
 };
 
 // 根据根节点构造目录树
@@ -119,10 +130,11 @@ const buildTree = root => {
 		const files = fs.readdirSync(root.path);
 		files.forEach((file, i) => {
 			const child = {
-				name: format(file),
+				name: format(file), // 显示名
+				fileName: file, // 文件名
 				path: path.join(root.path, file),
 				children: [],
-				index: `${root.index}-${i}`,
+				id: `${root.id}-${i}`,
 			};
 			if (path.extname(file).toLocaleLowerCase() === '.html' || isNodeDir(child.path)) {
 				root.children.push(child);
@@ -138,9 +150,10 @@ const getHtmlTree = dirPath => {
 		const dirName = path.basename(dirPath);
 		const root = {
 			name: format(dirName), // 文件名遵循首字母大写规则
+			fileName: dirName,
 			path: dirPath,
 			children: [],
-			index: 0,
+			id: 0,
 		};
 		buildTree(root);
 		return root;
