@@ -30,6 +30,7 @@ const actions = {
 				choices: [
 					{ title: 'vanilla', description: '用于基础开发', value: 'vanilla' },
 					{ title: 'wasm', description: '用于C++&Webassembly开发', value: 'wasm' },
+					{ title: 'react', description: '用于React开发', value: 'react' },
 					{ title: 'react-ts', description: '用于React&TS开发', value: 'react-ts' },
 					{ title: 'webgl', description: '用于WebGL开发', value: 'webgl' },
 				],

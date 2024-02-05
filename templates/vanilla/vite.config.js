@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import { ViteEjsPlugin } from 'vite-plugin-ejs';
+import { visualizer } from 'rollup-plugin-visualizer';
 import packageJson from './package.json';
 import path from 'path';
 import fs from 'fs';
@@ -27,7 +28,7 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 		],
 	};
 	if (command === 'serve') {
-		// dev
+		// dev开发环境
 		return {
 			...common,
 			server: {
@@ -51,27 +52,30 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 					},
 				},
 			},
-			build: {
-				rollupOptions: {
-					input: {
-						index: path.resolve(__dirname, 'pages/index/index.html'),
-					},
-				},
-			},
 		};
-	} else {
+	} else if (command === 'build') {
+		// build打包环境
+		// 添加打包体积分析工具
+		common.plugins.push(
+			visualizer({
+				emitFile: true,
+				filename: 'cache/stats.html',
+			})
+		);
 		if (mode !== 'lib') {
-			// command === 'build'
+			// 非lib模式
 			return {
 				...common,
 				// 打包配置
 				build: {
 					target: 'modules',
-					outDir: 'dist', //指定输出路径
-					assetsDir: 'assets', // 指定生成静态资源的存放路径
+					outDir: 'dist',
+					assetsDir: 'assets',
 					minify: 'esbuild',
 					rollupOptions: {
-						input: path.resolve(__dirname, './src/main.js'), // 打包入口文件
+						input: {
+							main: path.resolve(__dirname, './src/main.js'),
+						},
 						output: {
 							// 最小化拆分包
 							manualChunks: id => {
@@ -81,7 +85,16 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 							},
 							entryFileNames: 'js/[name].[hash].js',
 							chunkFileNames: 'js/[name].[hash].js',
-							assetFileNames: '[ext]/[name].[hash].[ext]',
+							assetFileNames: assetInfo => {
+								// 静态资源分类打包
+								if (assetInfo.type === 'asset' && /\.(jpe?g|png|gif|svg)$/i.test(assetInfo.name)) {
+									return 'img/[name].[hash].[ext]';
+								}
+								if (assetInfo.type === 'asset' && /\.(ttf|woff|woff2|eot)$/i.test(assetInfo.name)) {
+									return 'fonts/[name].[hash].[ext]';
+								}
+								return '[ext]/[name].[hash].[ext]';
+							},
 							globals: {
 								// react: 'React', // UMD构建模式下为依赖提供一个全局变量
 							},
@@ -91,15 +104,14 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 				},
 			};
 		} else {
-			// build环境，但是lib模式
-			const libName = `${packageJson.name}-lib`;
+			// lib模式
+			const libName = `${packageJson.name}-lib`; // 库名称
 			return {
 				...common,
-				// 打包配置
 				build: {
 					target: 'modules',
-					outDir: 'dist', //指定输出路径
-					assetsDir: 'assets', // 指定生成静态资源的存放路径
+					outDir: 'dist',
+					assetsDir: 'assets',
 					minify: 'esbuild',
 					lib: {
 						entry: path.resolve(__dirname, './src/main.js'),
