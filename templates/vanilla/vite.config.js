@@ -8,7 +8,7 @@ import fs from 'fs';
 export default defineConfig(({ command, mode, ssrBuild }) => {
 	const ENV = loadEnv(mode, process.cwd(), ''); // 获取环境变量
 	const common = {
-		publicDir: 'public',
+		publicDir: './public', // public目录存放不会被js访问的文件，可以"./文件名"访问
 		resolve: {
 			alias: {
 				'@src': path.resolve(__dirname, './src'),
