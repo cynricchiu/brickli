@@ -1,5 +1,5 @@
 {
-	"name": "vanilla-test",
+	"name": "vanilla-template",
 	"version": "1.0.0",
 	"main": "src/main.js",
 	"license": "MIT",
@@ -8,7 +8,7 @@
 		"./dist"
 	],
 	"scripts": {
-		"dev": "vite",
+		"start": "vite",
 		"build": "vite build",
 		"build-lib": "vite build --mode=lib",
 		"preview": "vite preview --port 8088"

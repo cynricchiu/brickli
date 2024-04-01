@@ -1,4 +1,4 @@
-import { test } from '../../src/main';
+import { test } from '@src/main';
 
 test();
 console.log('## test ##');

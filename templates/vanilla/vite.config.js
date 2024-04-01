@@ -22,7 +22,7 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 			ViteEjsPlugin({
 				title: format(packageJson.name),
 				params: JSON.stringify({
-					demoList: getHtmlTree('./pages/demos'),
+					demoList: getHtmlTree(ENV.VITE_DEMO_DIR),
 				}).replaceAll('\\', '\\\\'), // 转成字符串才能传递给ejs，且路径中的\\替换成\\\\才能正确JSON.parse
 			}),
 		],
@@ -35,20 +35,15 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 				host: ENV.VITE_HOST || 'localhst',
 				port: ENV.VITE_PORT || '8080',
 				hmr: true,
-				open: '/home',
+				open: '/',
 				https: false,
 				cors: true,
 				proxy: {
-					// 地址代理，设置http://localhost:8080/home为主页面
-					'/home': {
-						target: `http://${ENV.VITE_HOST || 'localhst'}:${ENV.VITE_PORT || '8080'}`,
-						changeOrigin: true,
-						rewrite: path => path.replace(/^\/home/, 'pages/index/index.html'),
-					},
+					// 通过地址代理实现伪路由，/pages/demos/test.html ==> /demos/test.html
 					'/demos': {
 						target: `http://${ENV.VITE_HOST || 'localhst'}:${ENV.VITE_PORT || '8080'}`,
 						changeOrigin: true,
-						rewrite: path => path.replace(/^\/demos/, 'pages/demos'),
+						rewrite: path => path.replace(/^\/demos/, ENV.VITE_DEMO_DIR),
 					},
 				},
 			},
