@@ -119,56 +119,75 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 	}
 });
 
-// 仅将目录下有.html的识别为node
-const isNodeDir = dirPath => {
-	dirPath = path.resolve(__dirname, dirPath);
-	if (fs.statSync(dirPath).isDirectory()) {
-		const files = fs.readdirSync(dirPath);
-		return !!files.find(file => {
-			return path.extname(file).toLocaleLowerCase() === '.html';
-		});
-	}
-	return false;
-};
-
-// 根据根节点构造目录树
-const buildTree = root => {
-	if (isNodeDir(root.path)) {
-		const files = fs.readdirSync(root.path);
-		files.forEach((file, i) => {
-			const child = {
-				name: format(file), // 显示名
-				fileName: file, // 文件名
-				path: path.join(root.path, file),
-				children: [],
-				id: `${root.id}-${i}`,
-			};
-			if (path.extname(file).toLocaleLowerCase() === '.html' || isNodeDir(child.path)) {
-				root.children.push(child);
-			}
-			buildTree(child);
-		});
-	}
-};
-
 // 将demos目录结构组织为树形JSON
 const getHtmlTree = dirPath => {
 	if (isNodeDir(dirPath)) {
 		const dirName = path.basename(dirPath);
 		const root = {
-			name: format(dirName), // 文件名遵循首字母大写规则
-			fileName: dirName,
-			path: dirPath,
 			children: [],
-			id: 0,
+			htmlList: [], // html文件列表
+			id: '0',
+			fileName: dirName,
+			filePath: dirPath, // 绝对路径
+			name: 'Main',
+			href: '/demos', // 访问链接
 		};
-		buildTree(root);
+		getNodeList(dirPath, root);
 		return root;
 	}
 	return null;
 };
 
-// 首字母大写
-const format = str => {
-	return str.toLowerCase().replace(/( |^)[a-z]/g, letter => letter.toUpperCase());
+// 仅将含有固定格式文件的目录识别为node
+const isNodeDir = (dirPath, extNames = ['.html']) => {
+	dirPath = path.resolve(__dirname, dirPath);
+	if (fs.statSync(dirPath).isDirectory()) {
+		const files = fs.readdirSync(dirPath);
+		return !!files.find(file => {
+			const extName = path.extname(file).toLocaleLowerCase();
+			return extNames.indexOf(extName) !== -1;
+		});
+	}
+	return false;
+};
+
+// 遍历文件夹构造目录树
+const getNodeList = (dirPath, root, extNames = ['.html']) => {
+	if (isNodeDir(dirPath)) {
+		const { id, htmlList, children, href } = root;
+		const files = fs.readdirSync(dirPath);
+		files.forEach((file, i) => {
+			const filePath = path.join(dirPath, file); //文件路径
+			const attr = {
+				id: `${id}-${i}`,
+				fileName: file,
+				filePath,
+				name: format(path.parse(file).name), // 显示名
+				href: `${href}/${file}`, // 访问链接
+			};
+			const extName = path.extname(file).toLocaleLowerCase();
+			if (extNames.indexOf(extName) !== -1) {
+				htmlList.push(attr);
+			} else {
+				if (isNodeDir(filePath)) {
+					const child = {
+						children: [],
+						htmlList: [],
+						...attr,
+					};
+					children.push(child);
+					getNodeList(filePath, child);
+				}
+			}
+		});
+	}
+};
+
+// 字符串每个单词首字母大写
+const format = (str, separator = ' ') => {
+	const newStr = str.split(separator).reduce((pre, item) => {
+		pre += item.charAt(0).toUpperCase() + item.slice(1) + separator;
+		return pre;
+	}, '');
+	return newStr;
 };

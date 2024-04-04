@@ -16,55 +16,8 @@
 		<main class="content"></main>
 
 		<script type="text/javascript">
-			// 获取vite.config.js中的变量
-			const params = JSON.parse(`<%- params %>`); // js中无法识别
-			const { demoList } = params; 
-			const fragEle = document.createDocumentFragment();
-			
-			// 创建节点卡片组件
-			function createCard(node, root) {
-				const { path, name,fileName, id, children } = node;
-				if (children.length) {
-					// dir node
-					const figEle = document.createElement('figure');
-					figEle.className = 'card';
-					figEle.setAttribute('key', id);
-					figEle.innerHTML = `<figcaption>${name}</figcaption>`;
-					root.appendChild(figEle);
-					children.forEach(child => {
-						createCard(child, figEle);
-					});
-				} else {
-					// file node
-					const aEle = document.createElement('a');
-					aEle.setAttribute('key', id);
-					// aEle.setAttribute('href', path);
-					aEle.setAttribute('href', `/demos/${fileName}`);
-					aEle.setAttribute('target', '_blank');
-					aEle.innerHTML = `${name.substring(0, name.indexOf('.'))}`;
-					root.appendChild(aEle);
-				}
-				return root;
-			}
-			// 根据目录树展示所有卡片
-			const cardsEle = document.createDocumentFragment();
-			const mainNode = {
-				name: 'Main',
-				children: [],
-			};
-			const nodes = []; // demos根目录下所有文件归为Main节点
-			demoList.children.forEach(n => {
-			if (n.children.length) {
-				nodes.push(n);
-			} else {
-				mainNode.children.push(n);
-			}
-			});
-			nodes.push(mainNode);
-			nodes.forEach(n => {
-			createCard(n, cardsEle);
-			});
-			document.querySelector('.content').appendChild(cardsEle);
+			window.params = JSON.parse(`<%- params %>`); // 获取vite.config.js中的变量, js中无法识别ejs语法
 		</script>
+		<script type="module" src="./pages/index/index.js"></script>
 	</body>
 </html>
