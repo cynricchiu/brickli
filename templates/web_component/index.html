@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+		<link rel="stylesheet" href="./pages/index/index.css" />
+		<title><%- title %></title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			window.params = JSON.parse(`<%- params %>`); // 获取vite.config.js中的变量, js中无法识别ejs语法
+		</script>
+		<script type="module" src="./pages/index/index.js"></script>
+	</body>
+</html>
