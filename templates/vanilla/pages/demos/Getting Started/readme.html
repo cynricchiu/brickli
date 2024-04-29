@@ -1,0 +1,22 @@
+<h1>开始使用</h1>
+<p>本页面仅用于调试，不包含在项目打包内容中</p>
+<h2>路由识别</h2>
+<p>路由页面存放在特定目录 pages/demos 中</p>
+<p>
+	在此目录新建一个文件夹，新建 html 页面命名为 index.html 即可自动识别为路由节点，并支持嵌套，可参考Test和Getting
+	Started文件夹
+</p>
+<h2>调试页面展示</h2>
+<p>点击左侧树形节点将路由页面内容展示到此区域</p>
+<p>或点击节点后的按钮打开新页面</p>
+<h2>项目调试配置</h2>
+<p>可更改根目录下 .env 文件中的变量</p>
+<pre><code class="language-js">// 主机和端口
+VITE_HOST = 'localhost'
+VITE_PORT = '8080'
+
+// 示例页面目录
+VITE_DEMO_DIR = "./pages/demos" 
+
+// 示例页面根路由
+VITE_DEMO_ROUTE_PATH = "/demos" </code></pre>

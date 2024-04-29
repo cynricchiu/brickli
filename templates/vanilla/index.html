@@ -10,10 +10,18 @@
 	</head>
 	<body>
 		<header>
-			<img src="./favicon.svg" alt="" width="48" height="48"></img>
-			<label class="label"><%- title %></label>
+			<div class="logo">
+				<img src="./favicon.svg" alt="" />
+				<h1><%- title %></h1>
+			</div>
+			<span class="changeTheme"></span>
 		</header>
-		<main class="content"></main>
+		<main>
+			<div class="sider"></div>
+			<div class="content">
+				<iframe name="demo"></iframe>
+			</div>
+		</main>
 
 		<script type="text/javascript">
 			window.params = JSON.parse(`<%- params %>`); // 获取vite.config.js中的变量, js中无法识别ejs语法

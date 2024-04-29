@@ -1,0 +1,43 @@
+:root {
+	--font-body: 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+		'Helvetica Neue', 'sans-serif';
+	--image-open: url('/open.svg');
+	font-size: 16px;
+	font-family: var(--font-body);
+
+	&[theme='light'] {
+		--color-primary: #0085f2;
+		--color-second: #00d0aa;
+		--color-gradient: linear-gradient(90deg, var(--color-primary), var(--color-second));
+		--color-gradient-second: linear-gradient(90deg, var(--color-hover-primary), var(--color-hover-second));
+		--color-background-dark: #fff;
+		--color-background-dark-transparent: rgba(255, 255, 255, 0.1);
+		--color-background-grey: #f9f9fb;
+		--color-border: #cdcdcd;
+		--color-text-primary: #1b1b1b;
+		--color-text-secondary: #4e4e4e;
+		--color-text-anti: #cdcdcd;
+		--color-hover-text: #0069c2;
+		--color-hover-primary: rgba(0, 133, 242, 0.3);
+		--color-hover-second: rgba(0, 208, 170, 0.3);
+		--image-theme: url('/theme-light.svg');
+	}
+
+	&[theme='dark'] {
+		--color-primary: #0085f2;
+		--color-second: #00d0aa;
+		--color-gradient: linear-gradient(90deg, var(--color-primary), var(--color-second));
+		--color-gradient-second: linear-gradient(90deg, var(--color-hover-primary), var(--color-hover-second));
+		--color-background-dark: #1b1b1b;
+		--color-background-dark-transparent: rgba(27, 27, 27, 0.1);
+		--color-background-grey: #313131;
+		--color-border: #858585;
+		--color-text-primary: #fff;
+		--color-text-secondary: #cdcdcd;
+		--color-text-anti: #4e4e4e;
+		--color-hover-text: #8cb4ff;
+		--color-hover-primary: rgba(0, 133, 242, 0.3);
+		--color-hover-second: rgba(0, 208, 170, 0.3);
+		--image-theme: url('/theme-dark.svg');
+	}
+}

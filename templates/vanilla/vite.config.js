@@ -22,7 +22,8 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 			ViteEjsPlugin({
 				title: format(packageJson.name),
 				params: JSON.stringify({
-					demoList: getHtmlTree(ENV.VITE_DEMO_DIR),
+					title: format(packageJson.name),
+					demoList: getIndexTree(ENV.VITE_DEMO_DIR, ENV.VITE_DEMO_ROUTE_PATH),
 				}).replaceAll('\\', '\\\\'), // 转成字符串才能传递给ejs，且路径中的\\替换成\\\\才能正确JSON.parse
 			}),
 		],
@@ -120,64 +121,48 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
 });
 
 // 将demos目录结构组织为树形JSON
-const getHtmlTree = dirPath => {
-	if (isNodeDir(dirPath)) {
-		const dirName = path.basename(dirPath);
-		const root = {
-			children: [],
-			htmlList: [], // html文件列表
-			id: '0',
-			fileName: dirName,
-			filePath: dirPath, // 绝对路径
-			name: 'Main',
-			href: '/demos', // 访问链接
-		};
-		getNodeList(dirPath, root);
-		return root;
-	}
-	return null;
+const getIndexTree = (dirPath, route) => {
+	const root = {
+		name: 'Main', // 显示名称
+		id: '0',
+		dirName: path.basename(dirPath),
+		dirPath: path.resolve(__dirname, dirPath), // 绝对路径
+		href: route, // 访问链接
+		children: [],
+	};
+	getNodeList(root);
+	return root;
 };
 
 // 仅将含有固定格式文件的目录识别为node
-const isNodeDir = (dirPath, extNames = ['.html']) => {
-	dirPath = path.resolve(__dirname, dirPath);
-	if (fs.statSync(dirPath).isDirectory()) {
-		const files = fs.readdirSync(dirPath);
-		return !!files.find(file => {
-			const extName = path.extname(file).toLocaleLowerCase();
-			return extNames.indexOf(extName) !== -1;
-		});
+const isValidNode = (filePath, featureFile = 'index.html') => {
+	const fullPath = path.resolve(__dirname, filePath);
+	if (fs.statSync(fullPath).isDirectory()) {
+		const files = fs.readdirSync(fullPath);
+		return !!files.find(file => file === featureFile);
 	}
 	return false;
 };
 
 // 遍历文件夹构造目录树
-const getNodeList = (dirPath, root, extNames = ['.html']) => {
-	if (isNodeDir(dirPath)) {
-		const { id, htmlList, children, href } = root;
+const getNodeList = (root, featureFile = 'index.html') => {
+	const { id, dirPath, href, children } = root;
+	if (fs.statSync(dirPath).isDirectory()) {
 		const files = fs.readdirSync(dirPath);
-		files.forEach((file, i) => {
-			const filePath = path.join(dirPath, file); //文件路径
-			const attr = {
-				id: `${id}-${i}`,
-				fileName: file,
-				filePath,
-				name: format(path.parse(file).name), // 显示名
-				href: `${href}/${file}`, // 访问链接
-			};
-			const extName = path.extname(file).toLocaleLowerCase();
-			if (extNames.indexOf(extName) !== -1) {
-				htmlList.push(attr);
-			} else {
-				if (isNodeDir(filePath)) {
-					const child = {
-						children: [],
-						htmlList: [],
-						...attr,
-					};
-					children.push(child);
-					getNodeList(filePath, child);
-				}
+		files.forEach((file, index) => {
+			const filePath = path.resolve(root.dirPath, file);
+			if (isValidNode(filePath, featureFile)) {
+				const fileName = path.basename(filePath);
+				const node = {
+					name: format(fileName),
+					id: `${id}-${index}`,
+					dirName: fileName,
+					dirPath: path.resolve(__dirname, filePath),
+					href: `${href}/${fileName}`,
+					children: [],
+				};
+				children.push(node);
+				getNodeList(node, featureFile);
 			}
 		});
 	}
