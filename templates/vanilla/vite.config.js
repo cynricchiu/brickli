@@ -135,8 +135,8 @@ const getIndexTree = (dirPath, route) => {
 };
 
 // 仅将含有固定格式文件的目录识别为node
-const isValidNode = (filePath, featureFile = 'index.html') => {
-	const fullPath = path.resolve(__dirname, filePath);
+const isValidNode = (dirPath, featureFile = 'index.html') => {
+	const fullPath = path.resolve(__dirname, dirPath);
 	if (fs.statSync(fullPath).isDirectory()) {
 		const files = fs.readdirSync(fullPath);
 		return !!files.find(file => file === featureFile);
@@ -147,24 +147,26 @@ const isValidNode = (filePath, featureFile = 'index.html') => {
 // 遍历文件夹构造目录树
 const getNodeList = (root, featureFile = 'index.html') => {
 	const { id, dirPath, href, children } = root;
-	if (fs.statSync(dirPath).isDirectory()) {
-		const files = fs.readdirSync(dirPath);
-		files.forEach((file, index) => {
-			const filePath = path.resolve(root.dirPath, file);
-			if (isValidNode(filePath, featureFile)) {
-				const fileName = path.basename(filePath);
-				const node = {
-					name: format(fileName),
-					id: `${id}-${index}`,
-					dirName: fileName,
-					dirPath: path.resolve(__dirname, filePath),
-					href: `${href}/${fileName}`,
-					children: [],
-				};
-				children.push(node);
+	const files = fs.readdirSync(dirPath);
+	loop: for (let i = 0; i < files.length; i++) {
+		const fullPath = path.resolve(dirPath, files[i]);
+		if (fs.statSync(fullPath).isDirectory()) {
+			const fileName = path.basename(fullPath);
+			const node = {
+				name: format(fileName),
+				id: `${id}-${i}`,
+				dirName: fileName,
+				dirPath: path.resolve(__dirname, fullPath),
+				href: `${href}/${fileName}`,
+				children: [],
+			};
+			children.push(node);
+			if (isValidNode(fullPath, featureFile)) {
+				continue loop;
+			} else {
 				getNodeList(node, featureFile);
 			}
-		});
+		}
 	}
 };
 
