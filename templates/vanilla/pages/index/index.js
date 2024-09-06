@@ -33,10 +33,16 @@ function createCardComp(node, ele = document.createDocumentFragment()) {
 	return ele;
 }
 function createTreeComp(list = [], parentEle = document.createDocumentFragment()) {
-	list.sort((a, b) => {
+	const index0 = list.find(i => i.name.includes('Getting Started'));
+	const indexList = list.reduce((pre, cur) => {
+		if (!cur.name.includes('Getting Started')) pre.push(cur);
+		return pre;
+	}, []);
+	indexList.sort((a, b) => {
 		return a.name < b.name ? -1 : 1;
 	});
-	list.forEach(item => {
+	indexList.unshift(index0);
+	indexList.forEach(item => {
 		parentEle.appendChild(createCardComp(item));
 	});
 	return parentEle;
@@ -122,5 +128,5 @@ window.addEventListener(
 );
 // 首页加载
 setTheme('light');
-const defaultRoute = window.params.demoList?.children[0]?.href; // 默认路由
+const defaultRoute = '/demos/Getting Started'; // 默认路由
 history.replaceState({}, null, defaultRoute);
