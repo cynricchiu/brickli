@@ -31,6 +31,7 @@ const actions = {
 					{ title: 'vanilla', description: '用于HTML+JS+CSS基础开发', value: 'vanilla' },
 					{ title: 'web component', description: '用于Web Component开发', value: 'web component' },
 					{ title: 'wasm', description: '用于C++&Webassembly开发', value: 'wasm' },
+					{ title: 'express', description: '用于后端express项目开发', value: 'express' },
 					{ title: 'react', description: '用于React开发', value: 'react' },
 					{ title: 'react-ts', description: '用于React&TS开发', value: 'react-ts' },
 					{ title: 'webgl', description: '用于WebGL开发', value: 'webgl' },
